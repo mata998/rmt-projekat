@@ -102,9 +102,6 @@ app.get("/api/rooms", (request, response) => {
     }
   });
 
-  // log ALL rooms
-  // console.log(roomMap.keys());
-
   // send available rooms
   response.json(availableRooms);
 });
