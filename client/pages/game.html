@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <link rel="stylesheet" href="../css/style.css" />
+    <link rel="stylesheet" href="../css/popup.css" />
+    <title>WebChess</title>
+  </head>
+  <body>
+    <div class="info-container">
+      <h4>Room: <span id="room-name"></span></h4>
+      <h4 id="moveText">Your move</h4>
+    </div>
+
+    <div class="whole-page">
+      <div class="mid-container">
+        <div class="outer-border">
+          <div class="board">
+            <!-- <div class="field">
+                        <img src="">
+                    </div> -->
+          </div>
+        </div>
+      </div>
+
+      <div class="popup-container">
+        <div class="popup">
+          <h1>Choose a piece</h1>
+
+          <div class="piece-container">
+            <img src="../imgs/black/queen.png" alt="" />
+            <img src="../imgs/black/rook.png" alt="" />
+            <img src="../imgs/black/bishop.png" alt="" />
+            <img src="../imgs/black/knight.png" alt="" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Socket io -->
+    <script src="/socket.io/socket.io.js"></script>
+
+    <!-- My scripts -->
+    <script src="../js/classes.js"></script>
+    <script src="../js/createBoard.js"></script>
+    <script src="../js/main.js"></script>
+  </body>
+</html>
