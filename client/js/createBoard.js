@@ -12,6 +12,8 @@ let playerColor;
 let yourTurn = true;
 let rememberYourTurn;
 
+let highlightedMove;
+
 // Show room name
 document.getElementById("room-name").innerHTML = roomName;
 
@@ -64,10 +66,16 @@ socket.on("player-move", ({ move }) => {
 
   if (move.special == "BotSmallSwitch") {
     doTopSmallSwitch();
+
+    changeOpononentMoveHighlight(move);
   } else if (move.special == "BotBigSwitch") {
     doTopBigSwitch();
+
+    changeOpononentMoveHighlight(move);
   } else {
     executeMove(OneMove.flip(move));
+
+    changeOpononentMoveHighlight(OneMove.flip(move));
   }
 
   console.log("PLAY");
@@ -158,4 +166,42 @@ function stateToBoard(state) {
       }
     }
   }
+}
+
+function highlightOpponentMove({ fromRow, fromCol, toRow, toCol, special }) {
+  if (special == "BotSmallSwitch") {
+    mat[0][4].opponentMoveHighlight();
+    mat[0][6].opponentMoveHighlight();
+  } else if (special == "BotBigSwitch") {
+    mat[0][4].opponentMoveHighlight();
+    mat[0][2].opponentMoveHighlight();
+  } else {
+    mat[fromRow][fromCol].opponentMoveHighlight();
+    mat[toRow][toCol].opponentMoveHighlight();
+  }
+}
+
+function removeOpponentHighlight() {
+  if (highlightedMove) {
+    const { fromRow, fromCol, toRow, toCol, special } = highlightedMove;
+
+    if (special == "BotSmallSwitch") {
+      mat[0][4].removeOpponentMoveHighlight();
+      mat[0][6].removeOpponentMoveHighlight();
+    } else if (special == "BotBigSwitch") {
+      mat[0][4].removeOpponentMoveHighlight();
+      mat[0][2].removeOpponentMoveHighlight();
+    } else {
+      mat[fromRow][fromCol].removeOpponentMoveHighlight();
+      mat[toRow][toCol].removeOpponentMoveHighlight();
+    }
+  }
+}
+
+function changeOpononentMoveHighlight(newMove) {
+  removeOpponentHighlight(highlightedMove);
+
+  highlightedMove = newMove;
+
+  highlightOpponentMove(highlightedMove);
 }

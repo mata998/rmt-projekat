@@ -45,7 +45,6 @@ function click(e) {
   ) {
     focusField = clickedField;
     focusField.highlight();
-
     getAvailableFields();
     //
   } else if (clickedField == focusField) {
@@ -59,20 +58,21 @@ function click(e) {
   ) {
     focusField.removeHighlight();
     removeAvailableFields();
-
     focusField = clickedField;
     focusField.highlight();
     getAvailableFields();
     //
   } else if (doSwitches()) {
     changeInfoBox("red");
+    removeOpponentHighlight();
     yourTurn = false;
+
     //
   } else if (availableFields.includes(clickedField)) {
     sendMoveToServer();
     move();
-
     changeInfoBox("red");
+    removeOpponentHighlight();
     yourTurn = false;
   }
 }
@@ -175,50 +175,6 @@ function pawnWhite() {
     if (!mat[row - 1][col].isTaken) {
       mat[row - 1][col].highlight();
       availableFields.push(mat[row - 1][col]);
-    }
-  }
-}
-
-function pawnBlack() {
-  var row = focusField.row;
-  var col = focusField.col;
-
-  if (
-    row + 1 <= 7 &&
-    col - 1 >= 0 &&
-    mat[row + 1][col - 1].isTaken &&
-    mat[row + 1][col - 1].piece.color != focusField.piece.color
-  ) {
-    mat[row + 1][col - 1].highlightRed();
-    availableFields.push(mat[row + 1][col - 1]);
-  }
-
-  if (
-    row + 1 <= 7 &&
-    col + 1 <= 7 &&
-    mat[row + 1][col + 1].isTaken &&
-    mat[row + 1][col + 1].piece.color != focusField.piece.color
-  ) {
-    mat[row + 1][col + 1].highlightRed();
-    availableFields.push(mat[row + 1][col + 1]);
-  }
-
-  if (row == 1) {
-    if (!mat[row + 1][col].isTaken) {
-      mat[row + 1][col].highlight();
-      availableFields.push(mat[row + 1][col]);
-    } else {
-      return;
-    }
-
-    if (!mat[row + 2][col].isTaken) {
-      mat[row + 2][col].highlight();
-      availableFields.push(mat[row + 2][col]);
-    }
-  } else if (row + 1 <= 7) {
-    if (!mat[row + 1][col].isTaken) {
-      mat[row + 1][col].highlight();
-      availableFields.push(mat[row + 1][col]);
     }
   }
 }
@@ -500,18 +456,6 @@ function king() {
     mat[7][2].highlight();
     availableFields.push(mat[7][2]);
   }
-
-  // // MALA ROKADA CRNI KRALJ
-  // if (mozeMalaRokadaCrna()){
-  //     mat[0][6].highlight();
-  //     availableFields.push(mat[0][6]);
-  // }
-
-  // // VELIKA ROKADA CRNI KRALJ
-  // if (mozeVelikaRokadaCrna()){
-  //     mat[0][2].highlight();
-  //     availableFields.push(mat[0][2]);
-  // }
 }
 
 // SWITCHES
@@ -533,6 +477,7 @@ function doSwitches() {
     doBotSmallSwitch();
     sendBotSmallSwitch();
     return true;
+    //
   } else if (
     possibleBotBigSwitch() &&
     focusField == placeWhiteKing &&
