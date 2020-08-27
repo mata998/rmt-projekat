@@ -117,10 +117,7 @@ io.on("connection", (socket) => {
     const opponentSocket = room.playerSockets[(move.player + 1) % 2];
 
     if (opponentSocket) {
-      opponentSocket.emit("player-move", {
-        type: "success",
-        move: move,
-      });
+      opponentSocket.emit("player-move", { move });
     }
   });
 

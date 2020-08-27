@@ -3,18 +3,12 @@ var focusField = null;
 var clickedField = null;
 var availableFields = [];
 
-var sentMove = null;
-var intervalId = null;
-
-// remove room name
-localStorage.removeItem("roomName");
-
 // Event listeners
 board.addEventListener("click", click);
 
 // send move to server
-async function sendMoveToServer() {
-  sentMove = new OneMove(
+function sendMoveToServer() {
+  const sentMove = new OneMove(
     focusField.row,
     focusField.col,
     clickedField.row,
@@ -581,8 +575,8 @@ function doBotSmallSwitch() {
   move();
 }
 
-async function sendBotSmallSwitch() {
-  sentMove = new OneMove(0, 0, 0, 0, 0, playerType, "BotSmallSwitch");
+function sendBotSmallSwitch() {
+  const sentMove = new OneMove(0, 0, 0, 0, 0, playerType, "BotSmallSwitch");
 
   console.log("Sending move");
 
@@ -618,8 +612,8 @@ function doBotBigSwitch() {
   move();
 }
 
-async function sendBotBigSwitch() {
-  sentMove = new OneMove(0, 0, 0, 0, 0, playerType, "BotBigSwitch");
+function sendBotBigSwitch() {
+  const sentMove = new OneMove(0, 0, 0, 0, 0, playerType, "BotBigSwitch");
 
   console.log("Sending move");
 
