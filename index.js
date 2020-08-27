@@ -26,9 +26,12 @@ freeRooms.forEach((room) => {
 function getAvailableRooms() {
   const availableRooms = [];
 
-  roomMap.forEach((room, key) => {
-    if (room.numOfPlayers < 2) {
-      availableRooms.push(key);
+  roomMap.forEach((room) => {
+    if (room.numOfPlayers < 2 && room.visible) {
+      availableRooms.push({
+        roomName: room.roomName,
+        numOfPlayers: room.numOfPlayers,
+      });
     }
   });
 
@@ -74,14 +77,32 @@ io.on("connection", (socket) => {
 
       console.log(`Connection to room: ${roomName}, playerType: ${playerType}`);
 
+      // Add user to list of current users
       User.add(new User(socket, roomName, playerType));
 
+      // Send user his type
       socket.emit("player-type", { type: playerType });
 
-      // If the second player joined, room is not available anymore
-      if (playerType === 1) {
-        updateEveryonesRooms();
+      // Check if he joined first
+      if (room.numOfPlayers === 1) {
+        // Send user game state and that he joined first
+        socket.emit("game-state", { state: room.gameState, joinedFirst: true });
+      } else {
+        // Send user game state
+        socket.emit("game-state", {
+          state: room.gameState,
+          joinedFirst: false,
+        });
+
+        // inform his opponent that he joined
+        room.playerSockets[(playerType + 1) % 2].emit("user-joined");
       }
+
+      // If the second player joined, room is not available anymore
+      // if (room.numOfPlayers === 2) {
+      //   updateEveryonesRooms();
+      // }
+      updateEveryonesRooms();
     } else {
       console.log(`Room ${roomName} doesnt exist`);
       socket.emit("player-type", { type: -1 });
@@ -91,15 +112,22 @@ io.on("connection", (socket) => {
   socket.on("player-move", ({ roomName, move }) => {
     const room = roomMap.get(roomName);
 
-    room.playerSockets[(move.player + 1) % 2].emit("player-move", {
-      type: "success",
-      move: move,
-    });
+    room.gameState.move(move);
+
+    const opponentSocket = room.playerSockets[(move.player + 1) % 2];
+
+    if (opponentSocket) {
+      opponentSocket.emit("player-move", {
+        type: "success",
+        move: move,
+      });
+    }
   });
 
   // Client dissconected
   socket.on("disconnect", async () => {
-    let deletedUser = User.delete(socket.id);
+    // Delete that user
+    const deletedUser = User.delete(socket.id);
 
     // He didnt even exist
     if (!deletedUser) {
@@ -109,28 +137,24 @@ io.on("connection", (socket) => {
     // Get users game room
     const room = roomMap.get(deletedUser.roomName);
 
+    // Kick him from the room
+    room.kickUser(deletedUser.socket.id);
+
     // Opponent
     const opponentSocket = room.playerSockets[(deletedUser.playerType + 1) % 2];
 
     // Check if opponent exists
     if (opponentSocket) {
-      const opponent = User.getUser(opponentSocket.id);
-      opponent.socket.emit("user-left");
-
-      // kill the opponent
-      User.delete(opponent.socket.id);
-    }
-
-    // kill the room
-    if (freeRooms.includes(room.roomName)) {
-      await setTimeout(() => {
-        room.reset();
-
-        // Update rooms for everyone
-        updateEveryonesRooms();
-      }, 10000);
+      // if he exists, inform him
+      opponentSocket.emit("user-left");
     } else {
-      roomMap.delete(room.roomName);
+      // kill the room
+      if (freeRooms.includes(room.roomName)) {
+        room.reset();
+      } else {
+        roomMap.delete(room.roomName);
+      }
+      // Inform everyone that one room is now available
       updateEveryonesRooms();
     }
 

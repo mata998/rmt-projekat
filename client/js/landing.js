@@ -17,7 +17,7 @@ socket.on("rooms", ({ availableRooms }) => {
 
   availableRooms.forEach((room) => {
     const newLi = document.createElement("li");
-    newLi.innerHTML = room;
+    newLi.innerHTML = `<span class="room-name">${room.roomName}</span><span class="room-num">${room.numOfPlayers}/2</span>`;
     newLi.addEventListener("click", connectToRoom);
 
     ul.appendChild(newLi);
@@ -54,8 +54,7 @@ socket.on("create-room", ({ type, roomName }) => {
 });
 
 async function connectToRoom(e) {
-  var roomName = e.target.innerHTML;
-  //   localStorage.setItem("roomName", roomName);
+  var roomName = e.target.firstChild.innerHTML;
 
   location.href = `pages/game.html?roomName=${roomName}`;
 }

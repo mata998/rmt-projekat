@@ -2,7 +2,7 @@ const roomName = new URLSearchParams(window.location.search).get("roomName");
 let playerType;
 let playerColor;
 let yourTurn = true;
-let isBlack = false;
+let rememberYourTurn;
 const WHITE_PLAYER = 0;
 const BLACK_PLAYER = 1;
 
@@ -15,14 +15,7 @@ socket.on("player-type", ({ type }) => {
   playerType = type;
   playerColor = playerType == 0 ? "white" : "black";
 
-  if (playerType == WHITE_PLAYER) {
-    textTurn.innerHTML = "Your turn";
-  } else if (playerType == BLACK_PLAYER) {
-    textTurn.innerHTML = "Opponents turn";
-    infoContainer.style.backgroundColor = "rgb(255, 80, 80)";
-    isBlack = true;
-    yourTurn = false;
-  } else {
+  if (playerType === -1) {
     console.log("RESTART");
     location.href = "/";
   }
@@ -38,6 +31,25 @@ socket.on("player-type", ({ type }) => {
   placeTopBigSwitch = mat[0][2];
 });
 
+socket.on("game-state", ({ state, joinedFirst }) => {
+  stateToBoard(state);
+
+  if (state.turn === playerType) {
+    changeInfoBox("green");
+    yourTurn = true;
+  } else {
+    changeInfoBox("red");
+    yourTurn = false;
+  }
+
+  if (joinedFirst) {
+    changeInfoBox("blue");
+    rememberYourTurn = yourTurn;
+    yourTurn = false;
+    return;
+  }
+});
+
 socket.on("player-move", (data) => {
   if (data.type == "success") {
     console.log("We got move!");
@@ -48,9 +60,9 @@ socket.on("player-move", (data) => {
     if (sentMove == null || !OneMove.equals(receivedMove, sentMove)) {
       sentMove = receivedMove;
 
-      if (receivedMove.special == "malaRokadaBela") {
+      if (receivedMove.special == "BotSmallSwitch") {
         doTopSmallSwitch();
-      } else if (receivedMove.special == "velikaRokadaBela") {
+      } else if (receivedMove.special == "BotBigSwitch") {
         doTopBigSwitch();
       } else {
         executeMove(OneMove.flip(receivedMove));
@@ -68,9 +80,20 @@ socket.on("player-move", (data) => {
   }
 });
 
+socket.on("user-joined", () => {
+  yourTurn = rememberYourTurn;
+
+  if (yourTurn) {
+    changeInfoBox("green");
+  } else {
+    changeInfoBox("red");
+  }
+});
+
 socket.on("user-left", () => {
   console.log("HE LEFT!");
   changeInfoBox("blue");
+  rememberYourTurn = yourTurn;
   yourTurn = false;
 });
 
@@ -94,7 +117,7 @@ function changeInfoBox(color) {
   }
   if (color == "blue") {
     infoContainer.style.backgroundColor = "rgb(166, 166, 255)";
-    textTurn.innerHTML = "Your opponent left :(";
+    textTurn.innerHTML = "Opponent not here :(";
   }
 }
 
@@ -113,6 +136,56 @@ const whiteQueen = new Piece("queen", "white", "../imgs/white/queen.png");
 const whiteRook = new Piece("rook", "white", "../imgs/white/rook.png");
 const whiteKnight = new Piece("knight", "white", "../imgs/white/knight.png");
 
+function createBoard() {
+  let isBlack = playerType === 1 ? true : false;
+
+  // Creating Field objects
+  for (let i = 0; i < 8; i++) {
+    for (let j = 0; j < 8; j++) {
+      mat[i][j] = new Field(i, j);
+
+      if (isBlack) {
+        mat[i][j].element.classList.add("black-field");
+        isBlack = !isBlack;
+      } else {
+        isBlack = !isBlack;
+      }
+
+      board.appendChild(mat[i][j].element);
+    }
+
+    isBlack = !isBlack;
+  }
+
+  mat[0][0].element.style.borderTopLeftRadius = "6px";
+  mat[0][7].element.style.borderTopRightRadius = "6px";
+  mat[7][0].element.style.borderBottomLeftRadius = "6px";
+  mat[7][7].element.style.borderBottomRightRadius = "6px";
+}
+
+function stateToBoard(state) {
+  const matState = state.mat;
+
+  if (playerType === WHITE_PLAYER) {
+    for (let i = 0; i < 8; i++) {
+      for (let j = 0; j < 8; j++) {
+        if (matState[i][j].isTaken) {
+          mat[i][j].placePiece(matState[i][j].piece);
+        }
+      }
+    }
+  } else if (playerType === BLACK_PLAYER) {
+    for (let i = 0; i < 8; i++) {
+      for (let j = 0; j < 8; j++) {
+        if (matState[i][j].isTaken) {
+          mat[7 - i][j].placePiece(matState[i][j].piece);
+        }
+      }
+    }
+  }
+}
+
+/*
 function createBoard() {
   // Creating Field objects
   for (let i = 0; i < 8; i++) {
@@ -187,3 +260,5 @@ function createBoard() {
   mat[whiteFigures][3].placePiece(whiteQueen);
   mat[whiteFigures][4].placePiece(whiteKing);
 }
+
+*/

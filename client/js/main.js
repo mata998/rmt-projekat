@@ -582,7 +582,7 @@ function doBotSmallSwitch() {
 }
 
 async function sendBotSmallSwitch() {
-  sentMove = new OneMove(0, 0, 0, 0, 0, playerType, "malaRokadaBela");
+  sentMove = new OneMove(0, 0, 0, 0, 0, playerType, "BotSmallSwitch");
 
   console.log("Sending move");
 
@@ -619,7 +619,7 @@ function doBotBigSwitch() {
 }
 
 async function sendBotBigSwitch() {
-  sentMove = new OneMove(0, 0, 0, 0, 0, playerType, "velikaRokadaBela");
+  sentMove = new OneMove(0, 0, 0, 0, 0, playerType, "BotBigSwitch");
 
   console.log("Sending move");
 
