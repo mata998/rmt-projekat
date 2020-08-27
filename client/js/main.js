@@ -38,43 +38,42 @@ function click(e) {
 
   clickedField = getField(e.target);
 
-  if (focusField == null) {
-    if (clickedField.isTaken && clickedField.piece.color == playerColor) {
-      focusField = clickedField;
-      focusField.highlight();
+  if (
+    focusField == null &&
+    clickedField.isTaken &&
+    clickedField.piece.color == playerColor
+  ) {
+    focusField = clickedField;
+    focusField.highlight();
 
-      getAvailableFields();
-    }
+    getAvailableFields();
+    //
   } else if (clickedField == focusField) {
     focusField.removeHighlight();
     removeAvailableFields();
     focusField = null;
+    //
   } else if (
     clickedField.isTaken &&
     clickedField.piece.color == focusField.piece.color
   ) {
-    // ovde je bilo samo return
     focusField.removeHighlight();
     removeAvailableFields();
 
     focusField = clickedField;
     focusField.highlight();
     getAvailableFields();
-
-    return;
+    //
   } else if (doSwitches()) {
-    console.log("Odradjena rokada");
+    changeInfoBox("red");
+    yourTurn = false;
+    //
+  } else if (availableFields.includes(clickedField)) {
+    sendMoveToServer();
+    move();
 
     changeInfoBox("red");
     yourTurn = false;
-  } else {
-    if (availableFields.includes(clickedField)) {
-      sendMoveToServer();
-      move();
-
-      changeInfoBox("red");
-      yourTurn = false;
-    }
   }
 }
 
@@ -101,9 +100,9 @@ function getField(clickedElement) {
     clickedElement = clickedElement.parentElement;
   }
 
-  var id = clickedElement.id;
-  var row = id.charAt(0);
-  var col = id.charAt(1);
+  const id = clickedElement.id;
+  const row = id.charAt(0);
+  const col = id.charAt(1);
 
   return mat[row][col];
 }
