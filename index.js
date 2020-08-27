@@ -131,6 +131,7 @@ io.on("connection", (socket) => {
       }, 10000);
     } else {
       roomMap.delete(room.roomName);
+      updateEveryonesRooms();
     }
 
     // loggg
