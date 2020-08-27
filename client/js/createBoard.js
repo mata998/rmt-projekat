@@ -12,6 +12,7 @@ let playerColor;
 let yourTurn = true;
 let rememberYourTurn;
 
+// Opponents last move which is highlighted
 let highlightedMove;
 
 // Show room name

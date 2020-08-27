@@ -33,13 +33,13 @@ class GameState {
     this.mat[blackFigures][0].placePiece(Piece.blackRook);
     this.mat[blackFigures][7].placePiece(Piece.blackRook);
 
-    // this.mat[blackFigures][1].placePiece(Piece.blackKnight);
-    // this.mat[blackFigures][6].placePiece(Piece.blackKnight);
+    this.mat[blackFigures][1].placePiece(Piece.blackKnight);
+    this.mat[blackFigures][6].placePiece(Piece.blackKnight);
 
-    // this.mat[blackFigures][2].placePiece(Piece.blackBishop);
-    // this.mat[blackFigures][5].placePiece(Piece.blackBishop);
+    this.mat[blackFigures][2].placePiece(Piece.blackBishop);
+    this.mat[blackFigures][5].placePiece(Piece.blackBishop);
 
-    // this.mat[blackFigures][3].placePiece(Piece.blackQueen);
+    this.mat[blackFigures][3].placePiece(Piece.blackQueen);
     this.mat[blackFigures][4].placePiece(Piece.blackKing);
 
     // Whites
@@ -50,13 +50,13 @@ class GameState {
     this.mat[whiteFigures][0].placePiece(Piece.whiteRook);
     this.mat[whiteFigures][7].placePiece(Piece.whiteRook);
 
-    // this.mat[whiteFigures][1].placePiece(Piece.whiteKnight);
-    // this.mat[whiteFigures][6].placePiece(Piece.whiteKnight);
+    this.mat[whiteFigures][1].placePiece(Piece.whiteKnight);
+    this.mat[whiteFigures][6].placePiece(Piece.whiteKnight);
 
-    // this.mat[whiteFigures][2].placePiece(Piece.whiteBishop);
-    // this.mat[whiteFigures][5].placePiece(Piece.whiteBishop);
+    this.mat[whiteFigures][2].placePiece(Piece.whiteBishop);
+    this.mat[whiteFigures][5].placePiece(Piece.whiteBishop);
 
-    // this.mat[whiteFigures][3].placePiece(Piece.whiteQueen);
+    this.mat[whiteFigures][3].placePiece(Piece.whiteQueen);
     this.mat[whiteFigures][4].placePiece(Piece.whiteKing);
   }
 
