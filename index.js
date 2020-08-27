@@ -23,14 +23,53 @@ freeRooms.forEach((room) => {
   roomMap.set(room, new GameRoom(room));
 });
 
+function getAvailableRooms() {
+  const availableRooms = [];
+
+  roomMap.forEach((room, key) => {
+    if (room.numOfPlayers < 2) {
+      availableRooms.push(key);
+    }
+  });
+
+  return availableRooms;
+}
+
+function updateEveryonesRooms() {
+  const availableRooms = getAvailableRooms();
+
+  io.sockets.emit("rooms", { availableRooms });
+}
+
 // Socket io
 io.on("connection", (socket) => {
   // console.log("new socket connected");
 
+  socket.on("rooms", () => {
+    const availableRooms = getAvailableRooms();
+
+    // send available rooms
+    socket.emit("rooms", { availableRooms });
+  });
+
+  socket.on("create-room", ({ roomName }) => {
+    if (roomMap.has(roomName)) {
+      socket.emit("create-room", { type: "fail" });
+    } else {
+      const newRoom = new GameRoom(roomName);
+      roomMap.set(roomName, newRoom);
+
+      socket.emit("create-room", { type: "success", roomName });
+
+      // Send available rooms to everyone
+      updateEveryonesRooms();
+    }
+  });
+
   socket.on("join-room", ({ roomName }) => {
     const room = roomMap.get(roomName);
 
-    if (room) {
+    if (room && room.numOfPlayers < 2) {
       const playerType = room.connect(socket);
 
       console.log(`Connection to room: ${roomName}, playerType: ${playerType}`);
@@ -38,6 +77,11 @@ io.on("connection", (socket) => {
       User.add(new User(socket, roomName, playerType));
 
       socket.emit("player-type", { type: playerType });
+
+      // If the second player joined, room is not available anymore
+      if (playerType === 1) {
+        updateEveryonesRooms();
+      }
     } else {
       console.log(`Room ${roomName} doesnt exist`);
       socket.emit("player-type", { type: -1 });
@@ -79,7 +123,12 @@ io.on("connection", (socket) => {
 
     // kill the room
     if (freeRooms.includes(room.roomName)) {
-      await setTimeout(() => room.reset(), 10000);
+      await setTimeout(() => {
+        room.reset();
+
+        // Update rooms for everyone
+        updateEveryonesRooms();
+      }, 10000);
     } else {
       roomMap.delete(room.roomName);
     }

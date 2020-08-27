@@ -1,37 +1,37 @@
 const ul = document.getElementById("rooms-list");
+const input = document.querySelector("input");
 const createBtn = document.querySelector(".btn");
 const msg = document.getElementById("msg");
 
 createBtn.addEventListener("click", createRoom);
+input.addEventListener("keyup", enterPressed);
 
-(async () => {
-  var response;
-  var data;
+const socket = io();
 
-  // Get all available rooms
-  response = await fetch("/api/rooms");
-  const rooms = await response.json();
+socket.emit("rooms", () => {});
 
-  console.log(rooms);
+socket.on("rooms", ({ availableRooms }) => {
+  console.log(availableRooms);
 
-  rooms.forEach((room) => {
-    var newLi = document.createElement("li");
+  ul.innerHTML = "";
+
+  availableRooms.forEach((room) => {
+    const newLi = document.createElement("li");
     newLi.innerHTML = room;
     newLi.addEventListener("click", connectToRoom);
 
     ul.appendChild(newLi);
   });
-})();
+});
 
-async function connectToRoom(e) {
-  var roomName = e.target.innerHTML;
-  //   localStorage.setItem("roomName", roomName);
-
-  location.href = `pages/game.html?roomName=${roomName}`;
+function enterPressed(e) {
+  if (e.keyCode === 13) {
+    createRoom();
+  }
 }
 
-async function createRoom() {
-  const roomName = document.querySelector("input").value;
+function createRoom() {
+  const roomName = input.value;
 
   if (roomName == "") {
     msg.innerHTML = "Enter room name";
@@ -39,13 +39,11 @@ async function createRoom() {
     return;
   }
 
-  // send new room name and get if its created or not
-  const response = await fetch(`/api/createroom/${roomName}`);
-  const data = await response.json();
+  socket.emit("create-room", { roomName });
+}
 
-  console.log(data);
-
-  if (data.msg == "success") {
+socket.on("create-room", ({ type, roomName }) => {
+  if (type == "success") {
     // localStorage.setItem("roomName", roomName);
 
     location.href = `pages/game.html?roomName=${roomName}`;
@@ -53,4 +51,11 @@ async function createRoom() {
     msg.innerHTML = "That room exists";
     msg.style.color = "red";
   }
+});
+
+async function connectToRoom(e) {
+  var roomName = e.target.innerHTML;
+  //   localStorage.setItem("roomName", roomName);
+
+  location.href = `pages/game.html?roomName=${roomName}`;
 }
