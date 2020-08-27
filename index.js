@@ -141,33 +141,3 @@ io.on("connection", (socket) => {
     // console.log(User.getUsers());
   });
 });
-
-app.get("/api/rooms", (request, response) => {
-  var availableRooms = [];
-
-  roomMap.forEach((value, key) => {
-    if (value.numOfPlayers < 2) {
-      availableRooms.push(key);
-    }
-  });
-
-  // send available rooms
-  response.json(availableRooms);
-});
-
-app.get("/api/createroom/:roomName", (request, response) => {
-  const roomName = request.params.roomName;
-
-  if (roomMap.has(roomName)) {
-    response.json({
-      msg: "fail",
-    });
-  }
-
-  const newRoom = new GameRoom(roomName);
-  roomMap.set(roomName, newRoom);
-
-  response.json({
-    msg: "success",
-  });
-});
